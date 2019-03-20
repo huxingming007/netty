@@ -5,8 +5,10 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.channels.*;
 import java.nio.channels.spi.SelectorProvider;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -110,9 +112,14 @@ public class NioServer {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // 反转  准备让bb被读取
+        // 反转  准备让bb被读取  position=0 limit=前position位置
         bb.flip();
-        System.out.println(bb);
+        Charset utf8 = Charset.forName("UTF-8");
+        // decode会是position=limit
+        CharBuffer cb = utf8.decode(bb);
+        System.out.println(cb.array());
+        // 使position=0
+        bb.rewind();
         // 异步处理读取到的数据
         executorService.execute(new HandleMsg(sk, bb, selector));
     }
@@ -121,9 +128,10 @@ public class NioServer {
         ServerSocketChannel server = (ServerSocketChannel) sk.channel();
         SocketChannel clientChannel;
         try {
+            // 代表和客户端通信的通道
             clientChannel = server.accept();
             clientChannel.configureBlocking(false);
-            // 新生成的SocketChannel注册到selector，并且感兴趣的事件是read
+            // 新生成的SocketChannel注册到selector，并且感兴趣的事件是read，当selector发现这个channel已经准备好读时，就能给线程一个通知
             SelectionKey clientKey = clientChannel.register(selector, SelectionKey.OP_READ);
             // 作为附件到连接的SelectionKey
             EchoClient echoClient = new EchoClient();

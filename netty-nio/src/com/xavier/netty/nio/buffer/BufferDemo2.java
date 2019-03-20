@@ -44,6 +44,10 @@ public class BufferDemo2 {
         buffer.compact();
         System.out.println("after compact:" + buffer);
         System.out.println("\t" + new String(buffer.array()));
+        buffer.put("ef".getBytes());
+        System.out.println("after compact:" + buffer);
+        System.out.println("\t" + new String(buffer.array()));
+
 
         System.out.println("------Test get-------------");
         buffer = ByteBuffer.allocate(32);

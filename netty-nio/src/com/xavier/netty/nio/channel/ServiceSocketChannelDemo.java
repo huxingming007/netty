@@ -104,7 +104,7 @@ public class ServiceSocketChannelDemo {
                                 /*通过SelectionKey获取对应的通道*/
                                 SocketChannel sc = (SocketChannel) key.channel();
 
-                                /*从底层socket读缓冲区中读入数据*/
+                                /*从底层socket读缓冲区中读入数据  将通道里面的数据读取并且写入到readBuffer*/
                                 sc.read(readBuffer);
                                 readBuffer.flip();
 
@@ -133,6 +133,7 @@ public class ServiceSocketChannelDemo {
                                 SocketChannel sc = (SocketChannel) key.channel();
                                 int len = 0;
                                 while (writeBuffer.hasRemaining()) {
+                                    // 将writeBuffer中的数据写到通道中
                                     len = sc.write(writeBuffer);
                                     /*说明底层的socket写缓冲已满*/
                                     if (len == 0) {
